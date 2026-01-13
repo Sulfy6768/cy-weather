@@ -1,5 +1,5 @@
 # Base image for building the application
-FROM node:23 AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -17,8 +17,8 @@ ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build
 
-# Base image for serving the application with Brotli support
-FROM fholzer/nginx-brotli:latest
+# Use official nginx alpine (lightweight and secure)
+FROM nginx:alpine
 
 # Copy built files to nginx html directory
 COPY --from=builder /app/dist /usr/share/nginx/html
