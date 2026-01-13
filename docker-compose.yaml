@@ -40,6 +40,57 @@ services:
     networks:
       - cy-weather-network
 
+  # Service Node Exporter
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: cy-weather-node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - cy-weather-network
+
+  #service prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cy-weather-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - cy-weather-network
+    restart: unless-stopped
+
+  # Service Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: cy-weather-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - cy-weather-network
+    restart: unless-stopped
+
 networks:
   cy-weather-network:
     driver: bridge
+
+volumes:
+  grafana-storage:

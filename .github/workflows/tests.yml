@@ -1,0 +1,38 @@
+# GitHub Actions - Lance les tests automatiquement
+# Se déclenche à chaque push ou pull request sur main
+
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Récupère le code du repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # 2. Installe Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      # 3. Installe les dépendances
+      - name: Install dependencies
+        run: |
+          cd api
+          pip install -r requirements.txt
+          pip install pytest
+      
+      # 4. Lance les tests
+      - name: Run tests
+        run: |
+          cd api
+          PYTHONPATH=. pytest tests/ -v

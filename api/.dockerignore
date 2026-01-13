@@ -36,3 +36,4 @@ docs/
 # Git
 .git/
 .gitignore
+.venv/
